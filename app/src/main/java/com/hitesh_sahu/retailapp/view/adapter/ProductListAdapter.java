@@ -1,6 +1,7 @@
 package com.hitesh_sahu.retailapp.view.adapter;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.Spanned;
@@ -18,6 +19,7 @@ import com.hitesh_sahu.retailapp.R;
 import com.hitesh_sahu.retailapp.model.CenterRepository;
 import com.hitesh_sahu.retailapp.model.entities.Money;
 import com.hitesh_sahu.retailapp.model.entities.Product;
+import com.hitesh_sahu.retailapp.util.AnalyticsHelpers;
 import com.hitesh_sahu.retailapp.util.ColorGenerator;
 import com.hitesh_sahu.retailapp.util.Utils;
 import com.hitesh_sahu.retailapp.view.activities.ECartHomeActivity;
@@ -30,317 +32,349 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- *  @author Hitesh Sahu (hiteshsahu.com)
+ * @author Hitesh Sahu (hiteshsahu.com)
  */
 public class ProductListAdapter extends
-		RecyclerView.Adapter<ProductListAdapter.VersionViewHolder> implements
-		ItemTouchHelperAdapter {
+        RecyclerView.Adapter<ProductListAdapter.VersionViewHolder> implements
+        ItemTouchHelperAdapter {
 
-	private ColorGenerator mColorGenerator = ColorGenerator.MATERIAL;
+    private ColorGenerator mColorGenerator = ColorGenerator.MATERIAL;
 
-	private IBuilder mDrawableBuilder;
+    private IBuilder mDrawableBuilder;
 
-	private TextDrawable drawable;
+    private TextDrawable drawable;
 
-	private String ImageUrl;
+    private String ImageUrl;
 
-	private List<Product> productList = new ArrayList<Product>();
-	private OnItemClickListener clickListener;
+    private List<Product> productList = new ArrayList<Product>();
+    private OnItemClickListener clickListener;
 
-	private Context context;
+    private Context context;
 
-	public ProductListAdapter(String subcategoryKey, Context context,
-			boolean isCartlist) {
+    private AnalyticsHelpers mAnalyticsHelpers;
 
-		if (isCartlist) {
+    public ProductListAdapter(String subcategoryKey, Context context,
+                              boolean isCartlist) {
 
-			productList = CenterRepository.getCenterRepository()
-					.getListOfProductsInShoppingList();
+        if (isCartlist) {
 
-		} else {
+            productList = CenterRepository.getCenterRepository()
+                    .getListOfProductsInShoppingList();
 
-			productList = CenterRepository.getCenterRepository().getMapOfProductsInCategory()
-					.get(subcategoryKey);
-		}
-
-		this.context = context;
-	}
-
-	@Override
-	public VersionViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-		View view = LayoutInflater.from(viewGroup.getContext()).inflate(
-				R.layout.item_product_list, viewGroup, false);
-		VersionViewHolder viewHolder = new VersionViewHolder(view);
-		return viewHolder;
-	}
+        } else {
 
-	@Override
-	public void onBindViewHolder(final VersionViewHolder holder,
-			final int position) {
+            productList = CenterRepository.getCenterRepository().getMapOfProductsInCategory()
+                    .get(subcategoryKey);
+        }
 
-		holder.itemName.setText(productList.get(position)
-				.getItemName());
+        this.context = context;
+        mAnalyticsHelpers = AnalyticsHelpers.getInstance(context);
+    }
 
-		holder.itemDesc.setText(productList.get(position)
-				.getItemShortDesc());
+    @Override
+    public VersionViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(
+                R.layout.item_product_list, viewGroup, false);
+        VersionViewHolder viewHolder = new VersionViewHolder(view);
+        return viewHolder;
+    }
 
-		String sellCostString = Money.rupees(
-				BigDecimal.valueOf(Long.valueOf(productList.get(position)
-						.getSellMRP()))).toString()
-				+ "  ";
+    @Override
+    public void onBindViewHolder(final VersionViewHolder holder,
+                                 final int position) {
 
-		String buyMRP = Money.rupees(
-				BigDecimal.valueOf(Long.valueOf(productList.get(position)
-						.getMRP()))).toString();
+        holder.itemName.setText(productList.get(position)
+                .getItemName());
 
-		String costString = sellCostString + buyMRP;
+        holder.itemDesc.setText(productList.get(position)
+                .getItemShortDesc());
 
-		holder.itemCost.setText(costString, BufferType.SPANNABLE);
+        String sellCostString = Money.rupees(
+                BigDecimal.valueOf(Long.valueOf(productList.get(position)
+                        .getSellMRP()))).toString()
+                + "  ";
 
-		Spannable spannable = (Spannable) holder.itemCost.getText();
+        String buyMRP = Money.rupees(
+                BigDecimal.valueOf(Long.valueOf(productList.get(position)
+                        .getMRP()))).toString();
 
-		spannable.setSpan(new StrikethroughSpan(), sellCostString.length(),
-				costString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        String costString = sellCostString + buyMRP;
 
-		mDrawableBuilder = TextDrawable.builder().beginConfig().withBorder(4)
-				.endConfig().roundRect(10);
+        holder.itemCost.setText(costString, BufferType.SPANNABLE);
 
-		drawable = mDrawableBuilder.build(String.valueOf(productList
-				.get(position).getItemName().charAt(0)), mColorGenerator
-				.getColor(productList.get(position).getItemName()));
+        Spannable spannable = (Spannable) holder.itemCost.getText();
 
-		ImageUrl = productList.get(position).getImageURL();
-		
+        spannable.setSpan(new StrikethroughSpan(), sellCostString.length(),
+                costString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-		Glide.with(context).load(ImageUrl).placeholder(drawable)
-				.error(drawable).animate(R.anim.base_slide_right_in)
-				.centerCrop().into(holder.imagView);
-		
-		
-		
-		holder.addItem.findViewById(R.id.add_item).setOnClickListener(
-				new OnClickListener() {
+        mDrawableBuilder = TextDrawable.builder().beginConfig().withBorder(4)
+                .endConfig().roundRect(10);
 
-					@Override
-					public void onClick(View v) {
+        drawable = mDrawableBuilder.build(String.valueOf(productList
+                .get(position).getItemName().charAt(0)), mColorGenerator
+                .getColor(productList.get(position).getItemName()));
 
-						
-						//current object
-						Product tempObj = productList.get(position);
+        ImageUrl = productList.get(position).getImageURL();
 
-						
-						//if current object is lready in shopping list
-						if (CenterRepository.getCenterRepository()
-								.getListOfProductsInShoppingList().contains(tempObj)) {
 
-							
-							//get position of current item in shopping list
-							int indexOfTempInShopingList = CenterRepository
-									.getCenterRepository().getListOfProductsInShoppingList()
-									.indexOf(tempObj);
-							
-							// increase quantity of current item in shopping list 
-							if (Integer.parseInt(tempObj.getQuantity()) == 0) {
-								
-								((ECartHomeActivity) getContext())
-										.updateItemCount(true);
-								
-							}
-
-							
-							// update quanity in shopping list
-							CenterRepository
-									.getCenterRepository()
-									.getListOfProductsInShoppingList()
-									.get(indexOfTempInShopingList)
-									.setQuantity(
-											String.valueOf(Integer
-													.valueOf(tempObj
-															.getQuantity()) + 1));
+        Glide.with(context).load(ImageUrl).placeholder(drawable)
+                .error(drawable).animate(R.anim.base_slide_right_in)
+                .centerCrop().into(holder.imagView);
 
-							
-							//update checkout amount
-							((ECartHomeActivity) getContext()).updateCheckOutAmount(
-									BigDecimal
-											.valueOf(Long
-													.valueOf(productList
-															.get(position)
-															.getSellMRP())),
-									true);
 
-							// update current item quanitity
-							holder.quanitity.setText(tempObj.getQuantity());
+        holder.addItem.findViewById(R.id.add_item).setOnClickListener(
+                new OnClickListener() {
 
-						} else {
+                    @Override
+                    public void onClick(View v) {
+                        addItem(holder, position);
+                        Product product = productList.get(position);
+                        logEvent(AnalyticsHelpers.Event.ADD_TO_CART,
+                                product.getProductId(),
+                                product.getItemName(),
+                                product.getQuantity(),
+                                product.getSellMRP());
+                        logBeginCheckoutEvent(product.getSellMRP(),AnalyticsHelpers.Currency.RUPEE);
+                        logCheckOutProcess(AnalyticsHelpers.Event.ADD_TO_CART);
+                    }
+                });
 
-							((ECartHomeActivity) getContext()).updateItemCount(true);
+        holder.removeItem.setOnClickListener(new OnClickListener() {
 
-							tempObj.setQuantity(String.valueOf(1));
+            @Override
+            public void onClick(View v) {
+                removeItem(holder, position);
+                Product product = productList.get(position);
+                logEvent(AnalyticsHelpers.Event.REMOVE_FROM_CART,
+                        product.getProductId(),
+                        product.getItemName(),
+                        product.getQuantity(),
+                        product.getSellMRP());
+                logCheckOutProcess(AnalyticsHelpers.Event.REMOVE_FROM_CART);
+            }
+
+        });
+
+    }
+
+
+    private ECartHomeActivity getContext() {
+        // TODO Auto-generated method stub
+        return (ECartHomeActivity) context;
+    }
+
+    @Override
+    public int getItemCount() {
+        return productList == null ? 0 : productList.size();
+    }
 
-							holder.quanitity.setText(tempObj.getQuantity());
+    class VersionViewHolder extends RecyclerView.ViewHolder implements
+            View.OnClickListener {
+        TextView itemName, itemDesc, itemCost, availability, quanitity,
+                addItem, removeItem;
+        ImageView imagView;
 
-							CenterRepository.getCenterRepository()
-									.getListOfProductsInShoppingList().add(tempObj);
+        public VersionViewHolder(View itemView) {
+            super(itemView);
+
+            itemName = (TextView) itemView.findViewById(R.id.item_name);
 
-							((ECartHomeActivity) getContext()).updateCheckOutAmount(
-									BigDecimal
-											.valueOf(Long
-													.valueOf(productList
-															.get(position)
-															.getSellMRP())),
-									true);
+            itemDesc = (TextView) itemView.findViewById(R.id.item_short_desc);
 
-						}
+            itemCost = (TextView) itemView.findViewById(R.id.item_price);
 
-						Utils.vibrate(getContext());
+            availability = (TextView) itemView
+                    .findViewById(R.id.iteam_avilable);
 
-					}
-				});
+            quanitity = (TextView) itemView.findViewById(R.id.iteam_amount);
 
-		holder.removeItem.setOnClickListener(new OnClickListener() {
+            itemName.setSelected(true);
+
+            imagView = ((ImageView) itemView.findViewById(R.id.product_thumb));
 
-			@Override
-			public void onClick(View v) {
+            addItem = ((TextView) itemView.findViewById(R.id.add_item));
 
-				Product tempObj = (productList).get(position);
+            removeItem = ((TextView) itemView.findViewById(R.id.remove_item));
 
-				if (CenterRepository.getCenterRepository().getListOfProductsInShoppingList()
-						.contains(tempObj)) {
+            itemView.setOnClickListener(this);
+
+
+        }
+
+        @Override
+        public void onClick(View v) {
+            clickListener.onItemClick(v, getPosition());
+        }
+    }
 
-					int indexOfTempInShopingList = CenterRepository
-							.getCenterRepository().getListOfProductsInShoppingList()
-							.indexOf(tempObj);
+    public interface OnItemClickListener {
+        public void onItemClick(View view, int position);
+    }
 
-					if (Integer.valueOf(tempObj.getQuantity()) != 0) {
+    public void SetOnItemClickListener(
+            final OnItemClickListener itemClickListener) {
+        this.clickListener = itemClickListener;
+    }
 
-						CenterRepository
-								.getCenterRepository()
-								.getListOfProductsInShoppingList()
-								.get(indexOfTempInShopingList)
-								.setQuantity(
-										String.valueOf(Integer.valueOf(tempObj
-												.getQuantity()) - 1));
+    @Override
+    public void onItemDismiss(int position) {
+        productList.remove(position);
+        notifyItemRemoved(position);
+    }
 
-						((ECartHomeActivity) getContext()).updateCheckOutAmount(
-								BigDecimal.valueOf(Long.valueOf(productList
-										.get(position).getSellMRP())),
-								false);
+    @Override
+    public void onItemMove(int fromPosition, int toPosition) {
+        if (fromPosition < toPosition) {
+            for (int i = fromPosition; i < toPosition; i++) {
+                Collections.swap(productList, i, i + 1);
+            }
+        } else {
+            for (int i = fromPosition; i > toPosition; i--) {
+                Collections.swap(productList, i, i - 1);
+            }
+        }
+        notifyItemMoved(fromPosition, toPosition);
+    }
 
-						holder.quanitity.setText(CenterRepository
-								.getCenterRepository().getListOfProductsInShoppingList()
-								.get(indexOfTempInShopingList).getQuantity());
+    private void logEvent(String eventType, String id, String name, String quantity, String price) {
+        Bundle bundle = new Bundle();
+        bundle.putString(AnalyticsHelpers.Param.ITEM_ID, id);
+        bundle.putString(AnalyticsHelpers.Param.ITEM_NAME, name);
+        bundle.putString(AnalyticsHelpers.Param.QUANTITY, quantity);
+        bundle.putString(AnalyticsHelpers.Param.PRICE, price);
+        mAnalyticsHelpers.logEvent(eventType, bundle);
+    }
 
-						Utils.vibrate(getContext());
+    private void logBeginCheckoutEvent(String value, String currency) {
+        Bundle bundle = new Bundle();
+        bundle.putString(AnalyticsHelpers.Param.VALUE, value);
+        bundle.putString(AnalyticsHelpers.Param.CURRENCY, currency);
+        mAnalyticsHelpers.logEvent(AnalyticsHelpers.Event.BEGIN_CHECKOUT, bundle);
+    }
 
-						if (Integer.valueOf(CenterRepository
-								.getCenterRepository().getListOfProductsInShoppingList()
-								.get(indexOfTempInShopingList).getQuantity()) == 0) {
+    private void logCheckOutProcess(String process){
+        Bundle bundle = new Bundle();
+        bundle.putString(AnalyticsHelpers.Param.CHECKOUT_STEP,process);
+        mAnalyticsHelpers.logEvent(AnalyticsHelpers.Event.CHECKOUT_PROGRESS,bundle);
+    }
 
-							CenterRepository.getCenterRepository()
-									.getListOfProductsInShoppingList()
-									.remove(indexOfTempInShopingList);
+    private void addItem(VersionViewHolder holder, int position) {
+        //current object
+        Product tempObj = productList.get(position);
 
-							notifyDataSetChanged();
 
-							((ECartHomeActivity) getContext())
-									.updateItemCount(false);
+        //if current object is lready in shopping list
+        if (CenterRepository.getCenterRepository()
+                .getListOfProductsInShoppingList().contains(tempObj)) {
 
-						}
 
-					}
+            //get position of current item in shopping list
+            int indexOfTempInShopingList = CenterRepository
+                    .getCenterRepository().getListOfProductsInShoppingList()
+                    .indexOf(tempObj);
 
-				} else {
+            // increase quantity of current item in shopping list
+            if (Integer.parseInt(tempObj.getQuantity()) == 0) {
+                ((ECartHomeActivity) getContext())
+                        .updateItemCount(true);
 
-				}
+            }
 
-			}
 
-		});
+            // update quanity in shopping list
+            CenterRepository
+                    .getCenterRepository()
+                    .getListOfProductsInShoppingList()
+                    .get(indexOfTempInShopingList)
+                    .setQuantity(
+                            String.valueOf(Integer
+                                    .valueOf(tempObj
+                                            .getQuantity()) + 1));
 
-	}
-	
 
-	private ECartHomeActivity getContext() {
-		// TODO Auto-generated method stub
-		return (ECartHomeActivity) context;
-	}
+            //update checkout amount
+            ((ECartHomeActivity) getContext()).updateCheckOutAmount(
+                    BigDecimal
+                            .valueOf(Long
+                                    .valueOf(productList
+                                            .get(position)
+                                            .getSellMRP())),
+                    true);
 
-	@Override
-	public int getItemCount() {
-		return productList == null ? 0 : productList.size();
-	}
+            // update current item quanitity
+            holder.quanitity.setText(tempObj.getQuantity());
 
-	class VersionViewHolder extends RecyclerView.ViewHolder implements
-			View.OnClickListener {
-		TextView itemName, itemDesc, itemCost, availability, quanitity,
-				addItem, removeItem;
-		ImageView imagView;
+        } else {
 
-		public VersionViewHolder(View itemView) {
-			super(itemView);
+            ((ECartHomeActivity) getContext()).updateItemCount(true);
 
-			itemName = (TextView) itemView.findViewById(R.id.item_name);
+            tempObj.setQuantity(String.valueOf(1));
 
-			itemDesc = (TextView) itemView.findViewById(R.id.item_short_desc);
+            holder.quanitity.setText(tempObj.getQuantity());
 
-			itemCost = (TextView) itemView.findViewById(R.id.item_price);
+            CenterRepository.getCenterRepository()
+                    .getListOfProductsInShoppingList().add(tempObj);
 
-			availability = (TextView) itemView
-					.findViewById(R.id.iteam_avilable);
+            ((ECartHomeActivity) getContext()).updateCheckOutAmount(
+                    BigDecimal
+                            .valueOf(Long
+                                    .valueOf(productList
+                                            .get(position)
+                                            .getSellMRP())),
+                    true);
 
-			quanitity = (TextView) itemView.findViewById(R.id.iteam_amount);
+        }
 
-			itemName.setSelected(true);
+        Utils.vibrate(getContext());
 
-			imagView = ((ImageView) itemView.findViewById(R.id.product_thumb));
+    }
 
-			addItem = ((TextView) itemView.findViewById(R.id.add_item));
+    private void removeItem(VersionViewHolder holder, int position) {
+        Product tempObj = (productList).get(position);
 
-			removeItem = ((TextView) itemView.findViewById(R.id.remove_item));
+        if (CenterRepository.getCenterRepository().getListOfProductsInShoppingList()
+                .contains(tempObj)) {
 
-			itemView.setOnClickListener(this);
-			
-			
-			
-			
-			
-			
+            int indexOfTempInShopingList = CenterRepository
+                    .getCenterRepository().getListOfProductsInShoppingList()
+                    .indexOf(tempObj);
 
-		}
+            if (Integer.valueOf(tempObj.getQuantity()) != 0) {
 
-		@Override
-		public void onClick(View v) {
-			clickListener.onItemClick(v, getPosition());
-		}
-	}
+                CenterRepository
+                        .getCenterRepository()
+                        .getListOfProductsInShoppingList()
+                        .get(indexOfTempInShopingList)
+                        .setQuantity(
+                                String.valueOf(Integer.valueOf(tempObj
+                                        .getQuantity()) - 1));
 
-	public interface OnItemClickListener {
-		public void onItemClick(View view, int position);
-	}
+                ((ECartHomeActivity) getContext()).updateCheckOutAmount(
+                        BigDecimal.valueOf(Long.valueOf(productList
+                                .get(position).getSellMRP())),
+                        false);
 
-	public void SetOnItemClickListener(
-			final OnItemClickListener itemClickListener) {
-		this.clickListener = itemClickListener;
-	}
+                holder.quanitity.setText(CenterRepository
+                        .getCenterRepository().getListOfProductsInShoppingList()
+                        .get(indexOfTempInShopingList).getQuantity());
 
-	@Override
-	public void onItemDismiss(int position) {
-		productList.remove(position);
-		notifyItemRemoved(position);
-	}
+                Utils.vibrate(getContext());
 
-	@Override
-	public void onItemMove(int fromPosition, int toPosition) {
-		if (fromPosition < toPosition) {
-			for (int i = fromPosition; i < toPosition; i++) {
-				Collections.swap(productList, i, i + 1);
-			}
-		} else {
-			for (int i = fromPosition; i > toPosition; i--) {
-				Collections.swap(productList, i, i - 1);
-			}
-		}
-		notifyItemMoved(fromPosition, toPosition);
-	}
+                if (Integer.valueOf(CenterRepository
+                        .getCenterRepository().getListOfProductsInShoppingList()
+                        .get(indexOfTempInShopingList).getQuantity()) == 0) {
 
+                    CenterRepository.getCenterRepository()
+                            .getListOfProductsInShoppingList()
+                            .remove(indexOfTempInShopingList);
+
+                    notifyDataSetChanged();
+
+                    ((ECartHomeActivity) getContext())
+                            .updateItemCount(false);
+
+                }
+            }
+        }
+    }
 }

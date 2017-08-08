@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.hitesh_sahu.retailapp">
+          package="com.hitesh_sahu.retailapp">
 
     <uses-sdk
         android:minSdkVersion="14"
-        android:targetSdkVersion="23" />
+        android:targetSdkVersion="23"/>
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application
         android:name=".AppController"
@@ -19,16 +20,15 @@
         android:label="@string/app_name"
         android:theme="@style/MyTheme">
 
-        <!-- Single Activity Model-->
+        <!-- Single Activity Model -->
         <activity
             android:name=".view.activities.ECartHomeActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait"></activity>
-
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".view.activities.APrioriResultActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait"/>
 
         <!-- Splash Activity -->
         <activity
@@ -36,10 +36,20 @@
             android:noHistory="true"
             android:theme="@android:style/Theme.NoTitleBar">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.MAIN"/>
 
-                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".view.activities.ShippingAndPayment"
+            android:label="@string/title_activity_shipping_and_payment"
+            android:theme="@style/MyTheme">
+        </activity>
+        <activity
+            android:name=".view.activities.ThankYouScreenActivity"
+            android:label="@string/title_activity_thank_you_screen"
+            android:theme="@style/MyTheme">
         </activity>
     </application>
 

@@ -37,6 +37,7 @@ import com.hitesh_sahu.retailapp.R;
 import com.hitesh_sahu.retailapp.model.CenterRepository;
 import com.hitesh_sahu.retailapp.model.entities.Money;
 import com.hitesh_sahu.retailapp.model.entities.Product;
+import com.hitesh_sahu.retailapp.util.AnalyticsHelpers;
 import com.hitesh_sahu.retailapp.util.ColorGenerator;
 import com.hitesh_sahu.retailapp.util.Utils;
 import com.hitesh_sahu.retailapp.util.Utils.AnimationType;
@@ -54,597 +55,656 @@ import com.squareup.picasso.Picasso;
 import java.math.BigDecimal;
 
 // TODO: Auto-generated Javadoc
+
 /**
  * Fragment that appears in the "content_frame", shows a animal.
  */
 public class ProductDetailsFragment extends Fragment {
 
-	private int productListNumber;
-	private ImageView itemImage;
-	private TextView itemSellPrice;
-	private TextView itemName;
-	private TextView quanitity;
-	private TextView itemdescription;
-	private IBuilder mDrawableBuilder;
-	private TextDrawable drawable;
-	private ColorGenerator mColorGenerator = ColorGenerator.MATERIAL;
-	private String subcategoryKey;
-	private boolean isFromCart;
-	private ClickableViewPager similarProductsPager;
-	private ClickableViewPager topSellingPager;
-	private Toolbar mToolbar;
-
-	/**
-	 * Instantiates a new product details fragment.
-	 */
-	public ProductDetailsFragment(String subcategoryKey, int productNumber,
-			boolean isFromCart) {
-
-		this.subcategoryKey = subcategoryKey;
-		this.productListNumber = productNumber;
-		this.isFromCart = isFromCart;
-	}
-
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
-		View rootView = inflater.inflate(R.layout.frag_product_detail,
-				container, false);
-
-		mToolbar = (Toolbar) rootView.findViewById(R.id.htab_toolbar);
-		if (mToolbar != null) {
-			((ECartHomeActivity) getActivity()).setSupportActionBar(mToolbar);
-		}
-
-		if (mToolbar != null) {
-			((ECartHomeActivity) getActivity()).getSupportActionBar()
-					.setDisplayHomeAsUpEnabled(true);
-
-			mToolbar.setNavigationIcon(R.drawable.ic_drawer);
-
-		}
-
-		mToolbar.setTitleTextColor(Color.WHITE);
-
-		mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				((ECartHomeActivity) getActivity()).getmDrawerLayout()
-						.openDrawer(GravityCompat.START);
-			}
-		});
-
-		((ECartHomeActivity) getActivity()).getSupportActionBar()
-				.setDisplayHomeAsUpEnabled(true);
-
-		similarProductsPager = (ClickableViewPager) rootView
-				.findViewById(R.id.similar_products_pager);
-
-		topSellingPager = (ClickableViewPager) rootView
-				.findViewById(R.id.top_selleing_pager);
-
-		itemSellPrice = ((TextView) rootView
-				.findViewById(R.id.category_discount));
-
-		quanitity = ((TextView) rootView.findViewById(R.id.iteam_amount));
-
-		itemName = ((TextView) rootView.findViewById(R.id.product_name));
-
-		itemdescription = ((TextView) rootView
-				.findViewById(R.id.product_description));
-
-		itemImage = (ImageView) rootView.findViewById(R.id.product_image);
-
-		fillProductData();
-
-		rootView.findViewById(R.id.add_item).setOnClickListener(
-				new OnClickListener() {
-
-					@Override
-					public void onClick(View v) {
-
-						if (isFromCart) {
-							
-							//Update Quantity on shopping List
-							CenterRepository
-									.getCenterRepository()
-									.getListOfProductsInShoppingList()
-									.get(productListNumber)
-									.setQuantity(
-											String.valueOf(
-
-											Integer.valueOf(CenterRepository
-													.getCenterRepository()
-													.getListOfProductsInShoppingList()
-													.get(productListNumber)
-													.getQuantity()) + 1));
-
-							
-							//Update Ui
-							quanitity.setText(CenterRepository
-									.getCenterRepository().getListOfProductsInShoppingList()
-									.get(productListNumber).getQuantity());
+    private int productListNumber;
+    private ImageView itemImage;
+    private TextView itemSellPrice;
+    private TextView itemName;
+    private TextView quanitity;
+    private TextView itemdescription;
+    private IBuilder mDrawableBuilder;
+    private TextDrawable drawable;
+    private ColorGenerator mColorGenerator = ColorGenerator.MATERIAL;
+    private String subcategoryKey;
+    private boolean isFromCart;
+    private ClickableViewPager similarProductsPager;
+    private ClickableViewPager topSellingPager;
+    private Toolbar mToolbar;
+    private AnalyticsHelpers mAnalyticsHelpers;
+
+    /**
+     * Instantiates a new product details fragment.
+     */
+    public ProductDetailsFragment(String subcategoryKey, int productNumber,
+                                  boolean isFromCart) {
+
+        this.subcategoryKey = subcategoryKey;
+        this.productListNumber = productNumber;
+        this.isFromCart = isFromCart;
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.frag_product_detail,
+                container, false);
+
+        mAnalyticsHelpers = AnalyticsHelpers.getInstance(getContext());
+
+        mToolbar = (Toolbar) rootView.findViewById(R.id.htab_toolbar);
+        if (mToolbar != null) {
+            ((ECartHomeActivity) getActivity()).setSupportActionBar(mToolbar);
+        }
+
+        if (mToolbar != null) {
+            ((ECartHomeActivity) getActivity()).getSupportActionBar()
+                    .setDisplayHomeAsUpEnabled(true);
+
+            mToolbar.setNavigationIcon(R.drawable.ic_drawer);
+
+        }
+
+        mToolbar.setTitleTextColor(Color.WHITE);
+
+        mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((ECartHomeActivity) getActivity()).getmDrawerLayout()
+                        .openDrawer(GravityCompat.START);
+            }
+        });
+
+        ((ECartHomeActivity) getActivity()).getSupportActionBar()
+                .setDisplayHomeAsUpEnabled(true);
+
+        similarProductsPager = (ClickableViewPager) rootView
+                .findViewById(R.id.similar_products_pager);
+
+        topSellingPager = (ClickableViewPager) rootView
+                .findViewById(R.id.top_selleing_pager);
+
+        itemSellPrice = ((TextView) rootView
+                .findViewById(R.id.category_discount));
+
+        quanitity = ((TextView) rootView.findViewById(R.id.iteam_amount));
+
+        itemName = ((TextView) rootView.findViewById(R.id.product_name));
+
+        itemdescription = ((TextView) rootView
+                .findViewById(R.id.product_description));
+
+        itemImage = (ImageView) rootView.findViewById(R.id.product_image);
+
+        fillProductData();
+
+        rootView.findViewById(R.id.add_item).setOnClickListener(
+                new OnClickListener() {
+
+                    @Override
+                    public void onClick(View v) {
+                        addItem();
+                        String itemName = CenterRepository.getCenterRepository()
+                                .getMapOfProductsInCategory().get(subcategoryKey).get(productListNumber)
+                                .getItemName();
+                        String price = Money.rupees(
+                                BigDecimal.valueOf(Long.valueOf(CenterRepository
+                                        .getCenterRepository().getMapOfProductsInCategory()
+                                        .get(subcategoryKey).get(productListNumber)
+                                        .getSellMRP()))).toString()
+                                + "  ";
+                        String productID = CenterRepository.getCenterRepository()
+                                .getMapOfProductsInCategory().get(subcategoryKey).get(productListNumber)
+                                .getProductId();
+                        logEvent(AnalyticsHelpers.Event.ADD_TO_CART,
+                                productID,
+                                itemName,
+                                String.valueOf(1),
+                                price);
+                        logBeginCheckoutEvent(price,AnalyticsHelpers.Currency.RUPEE);
+                        logCheckOutProcess(AnalyticsHelpers.Event.ADD_TO_CART);
+                    }
 
-							Utils.vibrate(getActivity());
+                });
 
-							//Update checkout amount on screen
-							((ECartHomeActivity) getActivity()).updateCheckOutAmount(
-									BigDecimal.valueOf(Long
-											.valueOf(CenterRepository
-													.getCenterRepository()
-													.getListOfProductsInShoppingList()
-													.get(productListNumber)
-													.getSellMRP())), true);
+        rootView.findViewById(R.id.remove_item).setOnClickListener(
+                new OnClickListener() {
 
-						} else {
-
-							// current object
-							Product tempObj = CenterRepository
-									.getCenterRepository().getMapOfProductsInCategory()
-									.get(subcategoryKey).get(productListNumber);
-
-							// if current object is lready in shopping list
-							if (CenterRepository.getCenterRepository()
-									.getListOfProductsInShoppingList().contains(tempObj)) {
-
-								// get position of current item in shopping list
-								int indexOfTempInShopingList = CenterRepository
-										.getCenterRepository().getListOfProductsInShoppingList()
-										.indexOf(tempObj);
-
-								// increase quantity of current item in shopping
-								// list
-								if (Integer.parseInt(tempObj.getQuantity()) == 0) {
-
-									((ECartHomeActivity) getContext())
-											.updateItemCount(true);
-
-								}
-
-								// update quanity in shopping list
-								CenterRepository
-										.getCenterRepository()
-										.getListOfProductsInShoppingList()
-										.get(indexOfTempInShopingList)
-										.setQuantity(
-												String.valueOf(Integer
-														.valueOf(tempObj
-																.getQuantity()) + 1));
-
-								// update checkout amount
-								((ECartHomeActivity) getContext()).updateCheckOutAmount(
-										BigDecimal.valueOf(Long
-												.valueOf(CenterRepository
-														.getCenterRepository()
-														.getMapOfProductsInCategory()
-														.get(subcategoryKey)
-														.get(productListNumber)
-														.getSellMRP())), true);
-
-								// update current item quanitity
-								quanitity.setText(tempObj.getQuantity());
-
-							} else {
-
-								((ECartHomeActivity) getContext())
-										.updateItemCount(true);
-
-								tempObj.setQuantity(String.valueOf(1));
+                    @Override
+                    public void onClick(View v) {
+                        removeItem();
+                        String itemName = CenterRepository.getCenterRepository()
+                                .getMapOfProductsInCategory().get(subcategoryKey).get(productListNumber)
+                                .getItemName();
+                        String price = Money.rupees(
+                                BigDecimal.valueOf(Long.valueOf(CenterRepository
+                                        .getCenterRepository().getMapOfProductsInCategory()
+                                        .get(subcategoryKey).get(productListNumber)
+                                        .getSellMRP()))).toString()
+                                + "  ";
+                        String productID = CenterRepository.getCenterRepository()
+                                .getMapOfProductsInCategory().get(subcategoryKey).get(productListNumber)
+                                .getProductId();
+                        logEvent(AnalyticsHelpers.Event.REMOVE_FROM_CART,
+                                productID,
+                                itemName,
+                                String.valueOf(1),
+                                price);
+                        logCheckOutProcess(AnalyticsHelpers.Event.REMOVE_FROM_CART);
+                    }
 
-								quanitity.setText(tempObj.getQuantity());
-
-								CenterRepository.getCenterRepository()
-										.getListOfProductsInShoppingList().add(tempObj);
+                });
 
-								((ECartHomeActivity) getContext()).updateCheckOutAmount(
-										BigDecimal.valueOf(Long
-												.valueOf(CenterRepository
-														.getCenterRepository()
-														.getMapOfProductsInCategory()
-														.get(subcategoryKey)
-														.get(productListNumber)
-														.getSellMRP())), true);
+        rootView.setFocusableInTouchMode(true);
+        rootView.requestFocus();
+        rootView.setOnKeyListener(new View.OnKeyListener() {
 
-							}
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
 
-							Utils.vibrate(getContext());
-
-						}
-					}
+                if (event.getAction() == KeyEvent.ACTION_UP
+                        && keyCode == KeyEvent.KEYCODE_BACK) {
 
-				});
-
-		rootView.findViewById(R.id.remove_item).setOnClickListener(
-				new OnClickListener() {
-
-					@Override
-					public void onClick(View v) {
-
-						if (isFromCart)
-
-						{
-
-							if (Integer.valueOf(CenterRepository
-									.getCenterRepository().getListOfProductsInShoppingList()
-									.get(productListNumber).getQuantity()) > 2) {
-
-								CenterRepository
-										.getCenterRepository()
-										.getListOfProductsInShoppingList()
-										.get(productListNumber)
-										.setQuantity(
-												String.valueOf(
-
-												Integer.valueOf(CenterRepository
-														.getCenterRepository()
-														.getListOfProductsInShoppingList()
-														.get(productListNumber)
-														.getQuantity()) - 1));
-
-								quanitity.setText(CenterRepository
-										.getCenterRepository().getListOfProductsInShoppingList()
-										.get(productListNumber).getQuantity());
-
-								((ECartHomeActivity) getActivity()).updateCheckOutAmount(
-										BigDecimal.valueOf(Long
-												.valueOf(CenterRepository
-														.getCenterRepository()
-														.getListOfProductsInShoppingList()
-														.get(productListNumber)
-														.getSellMRP())), false);
-
-								Utils.vibrate(getActivity());
-							}
+                    if (isFromCart) {
 
-							else if (Integer.valueOf(CenterRepository
-									.getCenterRepository().getListOfProductsInShoppingList()
-									.get(productListNumber).getQuantity()) == 1) {
-								((ECartHomeActivity) getActivity())
-										.updateItemCount(false);
+                        Utils.switchContent(R.id.frag_container,
+                                Utils.SHOPPING_LIST_TAG,
+                                ((ECartHomeActivity) (getActivity())),
+                                AnimationType.SLIDE_UP);
+                    } else {
 
-								((ECartHomeActivity) getActivity()).updateCheckOutAmount(
-										BigDecimal.valueOf(Long
-												.valueOf(CenterRepository
-														.getCenterRepository()
-														.getListOfProductsInShoppingList()
-														.get(productListNumber)
-														.getSellMRP())), false);
+                        Utils.switchContent(R.id.frag_container,
+                                Utils.PRODUCT_OVERVIEW_FRAGMENT_TAG,
+                                ((ECartHomeActivity) (getActivity())),
+                                AnimationType.SLIDE_RIGHT);
+                    }
 
-								CenterRepository.getCenterRepository()
-										.getListOfProductsInShoppingList()
-										.remove(productListNumber);
+                }
+                return true;
+            }
+        });
 
-								if (Integer
-										.valueOf(((ECartHomeActivity) getActivity())
-												.getItemCount()) == 0) {
+        if (isFromCart) {
 
-									MyCartFragment.updateMyCartFragment(false);
+            similarProductsPager.setVisibility(View.GONE);
 
-								}
+            topSellingPager.setVisibility(View.GONE);
 
-								Utils.vibrate(getActivity());
+        } else {
+            showRecomondation();
+        }
 
-							}
+        return rootView;
+    }
 
-						}
+    private void showRecomondation() {
 
-						else {
+        SimilarProductsPagerAdapter mCustomPagerAdapter = new SimilarProductsPagerAdapter(
+                getActivity(), subcategoryKey);
 
-							Product tempObj = CenterRepository
-									.getCenterRepository().getMapOfProductsInCategory()
-									.get(subcategoryKey).get(productListNumber);
+        similarProductsPager.setAdapter(mCustomPagerAdapter);
 
-							if (CenterRepository.getCenterRepository()
-									.getListOfProductsInShoppingList().contains(tempObj)) {
+        similarProductsPager.setOnItemClickListener(new OnItemClickListener() {
 
-								int indexOfTempInShopingList = CenterRepository
-										.getCenterRepository().getListOfProductsInShoppingList()
-										.indexOf(tempObj);
+            @Override
+            public void onItemClick(int position) {
 
-								if (Integer.valueOf(tempObj.getQuantity()) != 0) {
+                productListNumber = position;
 
-									CenterRepository
-											.getCenterRepository()
-											.getListOfProductsInShoppingList()
-											.get(indexOfTempInShopingList)
-											.setQuantity(
-													String.valueOf(Integer.valueOf(tempObj
-															.getQuantity()) - 1));
+                fillProductData();
 
-									((ECartHomeActivity) getContext()).updateCheckOutAmount(
-											BigDecimal.valueOf(Long
-													.valueOf(CenterRepository
-															.getCenterRepository()
-															.getMapOfProductsInCategory()
-															.get(subcategoryKey)
-															.get(productListNumber)
-															.getSellMRP())),
-											false);
+                Utils.vibrate(getActivity());
 
-									quanitity.setText(CenterRepository
-											.getCenterRepository()
-											.getListOfProductsInShoppingList()
-											.get(indexOfTempInShopingList)
-											.getQuantity());
+            }
+        });
 
-									Utils.vibrate(getContext());
+        topSellingPager.setAdapter(mCustomPagerAdapter);
 
-									if (Integer.valueOf(CenterRepository
-											.getCenterRepository()
-											.getListOfProductsInShoppingList()
-											.get(indexOfTempInShopingList)
-											.getQuantity()) == 0) {
+        topSellingPager.setOnItemClickListener(new OnItemClickListener() {
 
-										CenterRepository
-												.getCenterRepository()
-												.getListOfProductsInShoppingList()
-												.remove(indexOfTempInShopingList);
+            @Override
+            public void onItemClick(int position) {
 
-										((ECartHomeActivity) getContext())
-												.updateItemCount(false);
+                productListNumber = position;
 
-									}
+                fillProductData();
 
-								}
+                Utils.vibrate(getActivity());
 
-							} else {
+            }
+        });
+    }
 
-							}
+    public void fillProductData() {
 
-						}
+        if (!isFromCart) {
 
-					}
 
-				});
+            //Fetch and display item from Gloabl Data Model
 
-		rootView.setFocusableInTouchMode(true);
-		rootView.requestFocus();
-		rootView.setOnKeyListener(new View.OnKeyListener() {
+            itemName.setText(CenterRepository.getCenterRepository()
+                    .getMapOfProductsInCategory().get(subcategoryKey).get(productListNumber)
+                    .getItemName());
 
-			@Override
-			public boolean onKey(View v, int keyCode, KeyEvent event) {
+            quanitity.setText(CenterRepository.getCenterRepository()
+                    .getMapOfProductsInCategory().get(subcategoryKey).get(productListNumber)
+                    .getQuantity());
 
-				if (event.getAction() == KeyEvent.ACTION_UP
-						&& keyCode == KeyEvent.KEYCODE_BACK) {
+            itemdescription.setText(CenterRepository.getCenterRepository()
+                    .getMapOfProductsInCategory().get(subcategoryKey).get(productListNumber)
+                    .getItemDetail());
 
-					if (isFromCart) {
+            String sellCostString = Money.rupees(
+                    BigDecimal.valueOf(Long.valueOf(CenterRepository
+                            .getCenterRepository().getMapOfProductsInCategory()
+                            .get(subcategoryKey).get(productListNumber)
+                            .getSellMRP()))).toString()
+                    + "  ";
 
-						Utils.switchContent(R.id.frag_container,
-								Utils.SHOPPING_LIST_TAG,
-								((ECartHomeActivity) (getActivity())),
-								AnimationType.SLIDE_UP);
-					} else {
+            String buyMRP = Money.rupees(
+                    BigDecimal.valueOf(Long.valueOf(CenterRepository
+                            .getCenterRepository().getMapOfProductsInCategory()
+                            .get(subcategoryKey).get(productListNumber)
+                            .getMRP()))).toString();
 
-						Utils.switchContent(R.id.frag_container,
-								Utils.PRODUCT_OVERVIEW_FRAGMENT_TAG,
-								((ECartHomeActivity) (getActivity())),
-								AnimationType.SLIDE_RIGHT);
-					}
+            String costString = sellCostString + buyMRP;
 
-				}
-				return true;
-			}
-		});
+            itemSellPrice.setText(costString, BufferType.SPANNABLE);
 
-		if (isFromCart) {
+            Spannable spannable = (Spannable) itemSellPrice.getText();
 
-			similarProductsPager.setVisibility(View.GONE);
+            spannable.setSpan(new StrikethroughSpan(), sellCostString.length(),
+                    costString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-			topSellingPager.setVisibility(View.GONE);
+            mDrawableBuilder = TextDrawable.builder().beginConfig()
+                    .withBorder(4).endConfig().roundRect(10);
 
-		} else {
-			showRecomondation();
-		}
+            drawable = mDrawableBuilder.build(
+                    String.valueOf(CenterRepository.getCenterRepository()
+                            .getMapOfProductsInCategory().get(subcategoryKey)
+                            .get(productListNumber).getItemName().charAt(0)),
+                    mColorGenerator.getColor(CenterRepository
+                            .getCenterRepository().getMapOfProductsInCategory()
+                            .get(subcategoryKey).get(productListNumber)
+                            .getItemName()));
 
-		return rootView;
-	}
+            Picasso.with(getActivity())
+                    .load(CenterRepository.getCenterRepository().getMapOfProductsInCategory()
+                            .get(subcategoryKey).get(productListNumber)
+                            .getImageURL()).placeholder(drawable)
+                    .error(drawable).fit().centerCrop()
+                    .networkPolicy(NetworkPolicy.OFFLINE)
+                    .into(itemImage, new Callback() {
+                        @Override
+                        public void onSuccess() {
 
-	private void showRecomondation() {
+                        }
 
-		SimilarProductsPagerAdapter mCustomPagerAdapter = new SimilarProductsPagerAdapter(
-				getActivity(), subcategoryKey);
+                        @Override
+                        public void onError() {
+                            // Try again online if cache failed
 
-		similarProductsPager.setAdapter(mCustomPagerAdapter);
+                            Picasso.with(getActivity())
+                                    .load(CenterRepository.getCenterRepository()
+                                            .getMapOfProductsInCategory()
+                                            .get(subcategoryKey)
+                                            .get(productListNumber)
+                                            .getImageURL())
+                                    .placeholder(drawable).error(drawable)
+                                    .fit().centerCrop().into(itemImage);
+                        }
+                    });
 
-		similarProductsPager.setOnItemClickListener(new OnItemClickListener() {
+            LabelView label = new LabelView(getActivity());
 
-			@Override
-			public void onItemClick(int position) {
+            label.setText(CenterRepository.getCenterRepository().getMapOfProductsInCategory()
+                    .get(subcategoryKey).get(productListNumber).getDiscount());
+            label.setBackgroundColor(0xffE91E63);
 
-				productListNumber = position;
+            label.setTargetView(itemImage, 10, LabelView.Gravity.RIGHT_TOP);
+        } else {
 
-				fillProductData();
 
-				Utils.vibrate(getActivity());
+            //Fetch and display products from Shopping list
 
-			}
-		});
+            itemName.setText(CenterRepository.getCenterRepository()
+                    .getListOfProductsInShoppingList().get(productListNumber).getItemName());
 
-		topSellingPager.setAdapter(mCustomPagerAdapter);
+            quanitity.setText(CenterRepository.getCenterRepository()
+                    .getListOfProductsInShoppingList().get(productListNumber).getQuantity());
 
-		topSellingPager.setOnItemClickListener(new OnItemClickListener() {
+            itemdescription.setText(CenterRepository.getCenterRepository()
+                    .getListOfProductsInShoppingList().get(productListNumber).getItemDetail());
 
-			@Override
-			public void onItemClick(int position) {
+            String sellCostString = Money.rupees(
+                    BigDecimal.valueOf(Long.valueOf(CenterRepository
+                            .getCenterRepository().getListOfProductsInShoppingList()
+                            .get(productListNumber).getSellMRP()))).toString()
+                    + "  ";
 
-				productListNumber = position;
+            String buyMRP = Money.rupees(
+                    BigDecimal.valueOf(Long.valueOf(CenterRepository
+                            .getCenterRepository().getListOfProductsInShoppingList()
+                            .get(productListNumber).getMRP()))).toString();
 
-				fillProductData();
+            String costString = sellCostString + buyMRP;
 
-				Utils.vibrate(getActivity());
+            itemSellPrice.setText(costString, BufferType.SPANNABLE);
 
-			}
-		});
-	}
+            Spannable spannable = (Spannable) itemSellPrice.getText();
 
-	public void fillProductData() {
+            spannable.setSpan(new StrikethroughSpan(), sellCostString.length(),
+                    costString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
-		if (!isFromCart) {
-			
-			
-			//Fetch and display item from Gloabl Data Model
+            mDrawableBuilder = TextDrawable.builder().beginConfig()
+                    .withBorder(4).endConfig().roundRect(10);
 
-			itemName.setText(CenterRepository.getCenterRepository()
-					.getMapOfProductsInCategory().get(subcategoryKey).get(productListNumber)
-					.getItemName());
+            drawable = mDrawableBuilder.build(
+                    String.valueOf(CenterRepository.getCenterRepository()
+                            .getListOfProductsInShoppingList().get(productListNumber)
+                            .getItemName().charAt(0)),
+                    mColorGenerator.getColor(CenterRepository
+                            .getCenterRepository().getListOfProductsInShoppingList()
+                            .get(productListNumber).getItemName()));
 
-			quanitity.setText(CenterRepository.getCenterRepository()
-					.getMapOfProductsInCategory().get(subcategoryKey).get(productListNumber)
-					.getQuantity());
+            Picasso.with(getActivity())
+                    .load(CenterRepository.getCenterRepository()
+                            .getListOfProductsInShoppingList().get(productListNumber)
+                            .getImageURL()).placeholder(drawable)
+                    .error(drawable).fit().centerCrop()
+                    .networkPolicy(NetworkPolicy.OFFLINE)
+                    .into(itemImage, new Callback() {
+                        @Override
+                        public void onSuccess() {
 
-			itemdescription.setText(CenterRepository.getCenterRepository()
-					.getMapOfProductsInCategory().get(subcategoryKey).get(productListNumber)
-					.getItemDetail());
+                        }
 
-			String sellCostString = Money.rupees(
-					BigDecimal.valueOf(Long.valueOf(CenterRepository
-							.getCenterRepository().getMapOfProductsInCategory()
-							.get(subcategoryKey).get(productListNumber)
-							.getSellMRP()))).toString()
-					+ "  ";
+                        @Override
+                        public void onError() {
+                            // Try again online if cache failed
+
+                            Picasso.with(getActivity())
+                                    .load(CenterRepository.getCenterRepository()
+                                            .getListOfProductsInShoppingList()
+                                            .get(productListNumber)
+                                            .getImageURL())
+                                    .placeholder(drawable).error(drawable)
+                                    .fit().centerCrop().into(itemImage);
+                        }
+                    });
 
-			String buyMRP = Money.rupees(
-					BigDecimal.valueOf(Long.valueOf(CenterRepository
-							.getCenterRepository().getMapOfProductsInCategory()
-							.get(subcategoryKey).get(productListNumber)
-							.getMRP()))).toString();
+            LabelView label = new LabelView(getActivity());
 
-			String costString = sellCostString + buyMRP;
+            label.setText(CenterRepository.getCenterRepository()
+                    .getListOfProductsInShoppingList().get(productListNumber).getDiscount());
+            label.setBackgroundColor(0xffE91E63);
 
-			itemSellPrice.setText(costString, BufferType.SPANNABLE);
+            label.setTargetView(itemImage, 10, LabelView.Gravity.RIGHT_TOP);
 
-			Spannable spannable = (Spannable) itemSellPrice.getText();
+        }
+    }
 
-			spannable.setSpan(new StrikethroughSpan(), sellCostString.length(),
-					costString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+    private void addItem() {
+        if (isFromCart) {
 
-			mDrawableBuilder = TextDrawable.builder().beginConfig()
-					.withBorder(4).endConfig().roundRect(10);
+            //Update Quantity on shopping List
+            CenterRepository
+                    .getCenterRepository()
+                    .getListOfProductsInShoppingList()
+                    .get(productListNumber)
+                    .setQuantity(
+                            String.valueOf(
 
-			drawable = mDrawableBuilder.build(
-					String.valueOf(CenterRepository.getCenterRepository()
-							.getMapOfProductsInCategory().get(subcategoryKey)
-							.get(productListNumber).getItemName().charAt(0)),
-					mColorGenerator.getColor(CenterRepository
-							.getCenterRepository().getMapOfProductsInCategory()
-							.get(subcategoryKey).get(productListNumber)
-							.getItemName()));
+                                    Integer.valueOf(CenterRepository
+                                            .getCenterRepository()
+                                            .getListOfProductsInShoppingList()
+                                            .get(productListNumber)
+                                            .getQuantity()) + 1));
 
-			Picasso.with(getActivity())
-					.load(CenterRepository.getCenterRepository().getMapOfProductsInCategory()
-							.get(subcategoryKey).get(productListNumber)
-							.getImageURL()).placeholder(drawable)
-					.error(drawable).fit().centerCrop()
-					.networkPolicy(NetworkPolicy.OFFLINE)
-					.into(itemImage, new Callback() {
-						@Override
-						public void onSuccess() {
 
-						}
+            //Update Ui
+            quanitity.setText(CenterRepository
+                    .getCenterRepository().getListOfProductsInShoppingList()
+                    .get(productListNumber).getQuantity());
 
-						@Override
-						public void onError() {
-							// Try again online if cache failed
+            Utils.vibrate(getActivity());
 
-							Picasso.with(getActivity())
-									.load(CenterRepository.getCenterRepository()
-											.getMapOfProductsInCategory()
-											.get(subcategoryKey)
-											.get(productListNumber)
-											.getImageURL())
-									.placeholder(drawable).error(drawable)
-									.fit().centerCrop().into(itemImage);
-						}
-					});
+            //Update checkout amount on screen
+            ((ECartHomeActivity) getActivity()).updateCheckOutAmount(
+                    BigDecimal.valueOf(Long
+                            .valueOf(CenterRepository
+                                    .getCenterRepository()
+                                    .getListOfProductsInShoppingList()
+                                    .get(productListNumber)
+                                    .getSellMRP())), true);
 
-			LabelView label = new LabelView(getActivity());
+        } else {
 
-			label.setText(CenterRepository.getCenterRepository().getMapOfProductsInCategory()
-					.get(subcategoryKey).get(productListNumber).getDiscount());
-			label.setBackgroundColor(0xffE91E63);
+            // current object
+            Product tempObj = CenterRepository
+                    .getCenterRepository().getMapOfProductsInCategory()
+                    .get(subcategoryKey).get(productListNumber);
 
-			label.setTargetView(itemImage, 10, LabelView.Gravity.RIGHT_TOP);
-		} else {
+            // if current object is lready in shopping list
+            if (CenterRepository.getCenterRepository()
+                    .getListOfProductsInShoppingList().contains(tempObj)) {
 
-			
-			//Fetch and display products from Shopping list
-			
-			itemName.setText(CenterRepository.getCenterRepository()
-					.getListOfProductsInShoppingList().get(productListNumber).getItemName());
+                // get position of current item in shopping list
+                int indexOfTempInShopingList = CenterRepository
+                        .getCenterRepository().getListOfProductsInShoppingList()
+                        .indexOf(tempObj);
 
-			quanitity.setText(CenterRepository.getCenterRepository()
-					.getListOfProductsInShoppingList().get(productListNumber).getQuantity());
+                // increase quantity of current item in shopping
+                // list
+                if (Integer.parseInt(tempObj.getQuantity()) == 0) {
+
+                    ((ECartHomeActivity) getContext())
+                            .updateItemCount(true);
+
+                }
+
+                // update quantity in shopping list
+                CenterRepository
+                        .getCenterRepository()
+                        .getListOfProductsInShoppingList()
+                        .get(indexOfTempInShopingList)
+                        .setQuantity(
+                                String.valueOf(Integer
+                                        .valueOf(tempObj
+                                                .getQuantity()) + 1));
 
-			itemdescription.setText(CenterRepository.getCenterRepository()
-					.getListOfProductsInShoppingList().get(productListNumber).getItemDetail());
+                // update checkout amount
+                ((ECartHomeActivity) getContext()).updateCheckOutAmount(
+                        BigDecimal.valueOf(Long
+                                .valueOf(CenterRepository
+                                        .getCenterRepository()
+                                        .getMapOfProductsInCategory()
+                                        .get(subcategoryKey)
+                                        .get(productListNumber)
+                                        .getSellMRP())), true);
 
-			String sellCostString = Money.rupees(
-					BigDecimal.valueOf(Long.valueOf(CenterRepository
-							.getCenterRepository().getListOfProductsInShoppingList()
-							.get(productListNumber).getSellMRP()))).toString()
-					+ "  ";
+                // update current item quanitity
+                quanitity.setText(tempObj.getQuantity());
 
-			String buyMRP = Money.rupees(
-					BigDecimal.valueOf(Long.valueOf(CenterRepository
-							.getCenterRepository().getListOfProductsInShoppingList()
-							.get(productListNumber).getMRP()))).toString();
+            } else {
 
-			String costString = sellCostString + buyMRP;
+                ((ECartHomeActivity) getContext())
+                        .updateItemCount(true);
 
-			itemSellPrice.setText(costString, BufferType.SPANNABLE);
+                tempObj.setQuantity(String.valueOf(1));
 
-			Spannable spannable = (Spannable) itemSellPrice.getText();
+                quanitity.setText(tempObj.getQuantity());
 
-			spannable.setSpan(new StrikethroughSpan(), sellCostString.length(),
-					costString.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                CenterRepository.getCenterRepository()
+                        .getListOfProductsInShoppingList().add(tempObj);
 
-			mDrawableBuilder = TextDrawable.builder().beginConfig()
-					.withBorder(4).endConfig().roundRect(10);
+                ((ECartHomeActivity) getContext()).updateCheckOutAmount(
+                        BigDecimal.valueOf(Long
+                                .valueOf(CenterRepository
+                                        .getCenterRepository()
+                                        .getMapOfProductsInCategory()
+                                        .get(subcategoryKey)
+                                        .get(productListNumber)
+                                        .getSellMRP())), true);
+
+            }
+
+            Utils.vibrate(getContext());
+
+        }
+
+    }
+
+    private void removeItem() {
+        if (isFromCart) {
+            if (Integer.valueOf(CenterRepository
+                    .getCenterRepository().getListOfProductsInShoppingList()
+                    .get(productListNumber).getQuantity()) > 2) {
+
+                CenterRepository
+                        .getCenterRepository()
+                        .getListOfProductsInShoppingList()
+                        .get(productListNumber)
+                        .setQuantity(
+                                String.valueOf(
+
+                                        Integer.valueOf(CenterRepository
+                                                .getCenterRepository()
+                                                .getListOfProductsInShoppingList()
+                                                .get(productListNumber)
+                                                .getQuantity()) - 1));
 
-			drawable = mDrawableBuilder.build(
-					String.valueOf(CenterRepository.getCenterRepository()
-							.getListOfProductsInShoppingList().get(productListNumber)
-							.getItemName().charAt(0)),
-					mColorGenerator.getColor(CenterRepository
-							.getCenterRepository().getListOfProductsInShoppingList()
-							.get(productListNumber).getItemName()));
+                quanitity.setText(CenterRepository
+                        .getCenterRepository().getListOfProductsInShoppingList()
+                        .get(productListNumber).getQuantity());
 
-			Picasso.with(getActivity())
-					.load(CenterRepository.getCenterRepository()
-							.getListOfProductsInShoppingList().get(productListNumber)
-							.getImageURL()).placeholder(drawable)
-					.error(drawable).fit().centerCrop()
-					.networkPolicy(NetworkPolicy.OFFLINE)
-					.into(itemImage, new Callback() {
-						@Override
-						public void onSuccess() {
+                ((ECartHomeActivity) getActivity()).updateCheckOutAmount(
+                        BigDecimal.valueOf(Long
+                                .valueOf(CenterRepository
+                                        .getCenterRepository()
+                                        .getListOfProductsInShoppingList()
+                                        .get(productListNumber)
+                                        .getSellMRP())), false);
 
-						}
-
-						@Override
-						public void onError() {
-							// Try again online if cache failed
-
-							Picasso.with(getActivity())
-									.load(CenterRepository.getCenterRepository()
-											.getListOfProductsInShoppingList()
-											.get(productListNumber)
-											.getImageURL())
-									.placeholder(drawable).error(drawable)
-									.fit().centerCrop().into(itemImage);
-						}
-					});
-
-			LabelView label = new LabelView(getActivity());
-
-			label.setText(CenterRepository.getCenterRepository()
-					.getListOfProductsInShoppingList().get(productListNumber).getDiscount());
-			label.setBackgroundColor(0xffE91E63);
-
-			label.setTargetView(itemImage, 10, LabelView.Gravity.RIGHT_TOP);
-
-		}
-	}
+                Utils.vibrate(getActivity());
+            } else if (Integer.valueOf(CenterRepository
+                    .getCenterRepository().getListOfProductsInShoppingList()
+                    .get(productListNumber).getQuantity()) == 1) {
+                ((ECartHomeActivity) getActivity())
+                        .updateItemCount(false);
+
+                ((ECartHomeActivity) getActivity()).updateCheckOutAmount(
+                        BigDecimal.valueOf(Long
+                                .valueOf(CenterRepository
+                                        .getCenterRepository()
+                                        .getListOfProductsInShoppingList()
+                                        .get(productListNumber)
+                                        .getSellMRP())), false);
+
+                CenterRepository.getCenterRepository()
+                        .getListOfProductsInShoppingList()
+                        .remove(productListNumber);
+
+                if (Integer.valueOf(((ECartHomeActivity) getActivity())
+                        .getItemCount()) == 0) {
+
+                    MyCartFragment.updateMyCartFragment(false);
+
+                }
+
+                Utils.vibrate(getActivity());
+
+            }
+
+        } else {
+
+            Product tempObj = CenterRepository
+                    .getCenterRepository().getMapOfProductsInCategory()
+                    .get(subcategoryKey).get(productListNumber);
+
+            if (CenterRepository.getCenterRepository()
+                    .getListOfProductsInShoppingList().contains(tempObj)) {
+
+                int indexOfTempInShopingList = CenterRepository
+                        .getCenterRepository().getListOfProductsInShoppingList()
+                        .indexOf(tempObj);
+
+                if (Integer.valueOf(tempObj.getQuantity()) != 0) {
+
+                    CenterRepository
+                            .getCenterRepository()
+                            .getListOfProductsInShoppingList()
+                            .get(indexOfTempInShopingList)
+                            .setQuantity(
+                                    String.valueOf(Integer.valueOf(tempObj
+                                            .getQuantity()) - 1));
+
+                    ((ECartHomeActivity) getContext()).updateCheckOutAmount(
+                            BigDecimal.valueOf(Long
+                                    .valueOf(CenterRepository
+                                            .getCenterRepository()
+                                            .getMapOfProductsInCategory()
+                                            .get(subcategoryKey)
+                                            .get(productListNumber)
+                                            .getSellMRP())),
+                            false);
+
+                    quanitity.setText(CenterRepository
+                            .getCenterRepository()
+                            .getListOfProductsInShoppingList()
+                            .get(indexOfTempInShopingList)
+                            .getQuantity());
+
+                    Utils.vibrate(getContext());
+
+                    if (Integer.valueOf(CenterRepository
+                            .getCenterRepository()
+                            .getListOfProductsInShoppingList()
+                            .get(indexOfTempInShopingList)
+                            .getQuantity()) == 0) {
+
+                        CenterRepository
+                                .getCenterRepository()
+                                .getListOfProductsInShoppingList()
+                                .remove(indexOfTempInShopingList);
+
+                        ((ECartHomeActivity) getContext())
+                                .updateItemCount(false);
+
+                    }
+
+                }
+
+            }
+        }
+
+    }
+
+    private void logEvent(String eventType, String id, String name, String quantity, String price) {
+        Bundle bundle = new Bundle();
+        bundle.putString(AnalyticsHelpers.Param.ITEM_ID, id);
+        bundle.putString(AnalyticsHelpers.Param.ITEM_NAME, name);
+        bundle.putString(AnalyticsHelpers.Param.QUANTITY, quantity);
+        bundle.putString(AnalyticsHelpers.Param.PRICE, price);
+        mAnalyticsHelpers.logEvent(eventType, bundle);
+    }
+
+    private void logBeginCheckoutEvent(String value, String currency) {
+        Bundle bundle = new Bundle();
+        bundle.putString(AnalyticsHelpers.Param.VALUE, value);
+        bundle.putString(AnalyticsHelpers.Param.CURRENCY, currency);
+        mAnalyticsHelpers.logEvent(AnalyticsHelpers.Event.BEGIN_CHECKOUT, bundle);
+    }
+
+    private void logCheckOutProcess(String process){
+        Bundle bundle = new Bundle();
+        bundle.putString(AnalyticsHelpers.Param.CHECKOUT_STEP,process);
+        mAnalyticsHelpers.logEvent(AnalyticsHelpers.Event.CHECKOUT_PROGRESS,bundle);
+    }
 
 
 }

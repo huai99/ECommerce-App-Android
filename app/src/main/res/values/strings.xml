@@ -24,5 +24,19 @@
     <string name="lab_locations">Locations</string>
     <string name="pune">Pune</string>
     <string name="address_value">C 1002, Lorelle Socity Wakad Pune</string>
+    <string name="title_activity_shipping_and_payment">ShippingAndPayment</string>
+
+    <string-array name="shippingDetailsArray">
+        <item>Alibaba Express</item>
+        <item>Kayley Shipping</item>
+        <item>Congruent Shipping</item>
+    </string-array>
+
+    <string-array name="paymentDetailsArray">
+        <item>Master</item>
+        <item>Visa</item>
+        <item>Paypal</item>
+    </string-array>
+    <string name="title_activity_thank_you_screen">ThankYouScreenActivity</string>
 
 </resources>

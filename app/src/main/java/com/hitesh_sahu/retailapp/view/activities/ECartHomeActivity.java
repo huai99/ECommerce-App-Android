@@ -9,7 +9,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,8 +19,6 @@ import android.widget.TextView;
 
 import com.hitesh_sahu.retailapp.R;
 import com.hitesh_sahu.retailapp.domain.helper.Connectivity;
-import com.hitesh_sahu.retailapp.domain.mining.AprioriFrequentItemsetGenerator;
-import com.hitesh_sahu.retailapp.domain.mining.FrequentItemsetData;
 import com.hitesh_sahu.retailapp.model.CenterRepository;
 import com.hitesh_sahu.retailapp.model.entities.Money;
 import com.hitesh_sahu.retailapp.model.entities.Product;
@@ -35,14 +32,10 @@ import com.wang.avi.AVLoadingIndicatorView;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 public class ECartHomeActivity extends AppCompatActivity {
 
-    AprioriFrequentItemsetGenerator<String> generator =
-            new AprioriFrequentItemsetGenerator<>();
+
 
     private static final String TAG = ECartHomeActivity.class.getSimpleName();
 
@@ -57,6 +50,7 @@ public class ECartHomeActivity extends AppCompatActivity {
     private AVLoadingIndicatorView progressBar;
 
     private NavigationView mNavigationView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -260,9 +254,9 @@ public class ECartHomeActivity extends AppCompatActivity {
         super.onPause();
 
         // Store Shopping Cart in DB
-        new TinyDB(getApplicationContext()).putListObject(
+        /*new TinyDB(getApplicationContext()).putListObject(
                 PreferenceHelper.MY_CART_LIST_LOCAL, CenterRepository
-                        .getCenterRepository().getListOfProductsInShoppingList());
+                        .getCenterRepository().getListOfProductsInShoppingList());*/
     }
 
     @Override
@@ -321,7 +315,7 @@ public class ECartHomeActivity extends AppCompatActivity {
      * Makes fake Volley request by adding request in fake Volley Queue and
 	 * return mock JSON String plese visit
 	 * com.hitesh_sahu.retailapp.domain.mock.FakeHttpStack and
-	 * FakeRequestQueue queu
+	 * FakeRequestQueue queue
 	 */
 //	private void makeFakeVolleyJsonArrayRequest() {
 //
@@ -385,39 +379,12 @@ public class ECartHomeActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int id) {
                         //finish();
                         dialog.cancel();
-
-                        ArrayList<String> productId = new ArrayList<String>();
-
-                        for (Product productFromShoppingList : CenterRepository.getCenterRepository().getListOfProductsInShoppingList()) {
-
-                            //add product ids to array
-                            productId.add(productFromShoppingList.getProductId());
-                        }
-
-                        //pass product id array to Apriori ALGO
-                        CenterRepository.getCenterRepository()
-                                .addToItemSetList(new HashSet<>(productId));
-
-                        //Do Minning
-                        FrequentItemsetData<String> data = generator.generate(
-                                CenterRepository.getCenterRepository().getItemSetList()
-                                , MINIMUM_SUPPORT);
-
-                        for (Set<String> itemset : data.getFrequentItemsetList()) {
-                            Log.e("APriori", "Item Set : " +
-                                    itemset + "Support : " +
-                                    data.getSupport(itemset));
-                        }
-
-                        //clear all list item
-                        CenterRepository.getCenterRepository().getListOfProductsInShoppingList().clear();
-
-                        toggleBannerVisibility();
-
                         itemCount = 0;
                         itemCountTextView.setText(String.valueOf(0));
                         checkoutAmount = new BigDecimal(BigInteger.ZERO);
                         checkOutAmount.setText(Money.rupees(checkoutAmount).toString());
+                        toggleBannerVisibility();
+                        goToShippingAndPaymentPage();
 
                     }
                 });
@@ -446,7 +413,12 @@ public class ECartHomeActivity extends AppCompatActivity {
 
         AlertDialog alert11 = exitScreenDialog.create();
         alert11.show();
+    }
 
+    private void goToShippingAndPaymentPage(){
+        Intent intent = new Intent(this, ShippingAndPayment.class);
+        startActivity(intent);
+        finish();
     }
 
 }

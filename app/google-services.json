@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "204530775951",
+    "firebase_url": "https://fir-test-5e638.firebaseio.com",
+    "project_id": "fir-test-5e638",
+    "storage_bucket": "fir-test-5e638.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:204530775951:android:c21eb22a36a593b2",
+        "android_client_info": {
+          "package_name": "com.thoughtworks.retailshop"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "204530775951-lvboi37rgn1e7p8rqgn6n5u0qdhsf0mt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.thoughtworks.retailshop",
+            "certificate_hash": "f711dcfe32a186b7f96f98159615ad35b3064f56"
+          }
+        },
+        {
+          "client_id": "204530775951-07gfk6uutcb4pr5q283oc1sp4dfe48km.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCY_jwqjaXK-FkMh-4I6yjPVwJbhKidVJc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "204530775951-07gfk6uutcb4pr5q283oc1sp4dfe48km.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
