@@ -150,7 +150,7 @@
             android:textColor="#000"
             android:textSize="20sp" />
 
-        <com.hitesh_sahu.retailapp.view.customview.ClickableViewPager
+        <com.thoughtworks.retailshop.view.customview.ClickableViewPager
             android:id="@+id/similar_products_pager"
             android:layout_width="match_parent"
             android:layout_height="280dp"
@@ -176,7 +176,7 @@
             android:textColor="#000"
             android:textSize="20sp" />
 
-        <com.hitesh_sahu.retailapp.view.customview.ClickableViewPager
+        <com.thoughtworks.retailshop.view.customview.ClickableViewPager
             android:id="@+id/top_selleing_pager"
             android:layout_width="match_parent"
             android:layout_height="280dp"
