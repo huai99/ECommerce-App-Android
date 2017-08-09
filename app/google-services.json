@@ -1,35 +1,35 @@
 {
   "project_info": {
-    "project_number": "204530775951",
-    "firebase_url": "https://fir-test-5e638.firebaseio.com",
-    "project_id": "fir-test-5e638",
-    "storage_bucket": "fir-test-5e638.appspot.com"
+    "project_number": "432324984878",
+    "firebase_url": "https://ecommerceapp-ceebd.firebaseio.com",
+    "project_id": "ecommerceapp-ceebd",
+    "storage_bucket": "ecommerceapp-ceebd.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:204530775951:android:c21eb22a36a593b2",
+        "mobilesdk_app_id": "1:432324984878:android:89ba428e911a0935",
         "android_client_info": {
-          "package_name": "com.thoughtworks.retailshop"
+          "package_name": "com.thoughtworks.retailapp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "204530775951-lvboi37rgn1e7p8rqgn6n5u0qdhsf0mt.apps.googleusercontent.com",
+          "client_id": "432324984878-1f5u8cl5bmrsehlvj9pajkfr87fu9g9p.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.thoughtworks.retailshop",
+            "package_name": "com.thoughtworks.retailapp",
             "certificate_hash": "f711dcfe32a186b7f96f98159615ad35b3064f56"
           }
         },
         {
-          "client_id": "204530775951-07gfk6uutcb4pr5q283oc1sp4dfe48km.apps.googleusercontent.com",
+          "client_id": "432324984878-h9ig972fl8aigrd5ddctsh37gr0c01ej.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCY_jwqjaXK-FkMh-4I6yjPVwJbhKidVJc"
+          "current_key": "AIzaSyCxgSBzNAAh8CYx-7woPdaGnAg5SZKUwXE"
         }
       ],
       "services": {
@@ -40,7 +40,7 @@
           "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "204530775951-07gfk6uutcb4pr5q283oc1sp4dfe48km.apps.googleusercontent.com",
+              "client_id": "432324984878-h9ig972fl8aigrd5ddctsh37gr0c01ej.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

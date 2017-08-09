@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:custom="http://schemas.android.com/apk/res/com.thoughtworks.retailshop.util"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -21,7 +21,7 @@
             android:layout_toRightOf="@+id/pro_txt"
             android:src="@drawable/app_icon" />
 
-        <com.thoughtworks.retailshop.util.FontText
+        <com.thoughtworks.retailapp.util.FontText
             xmlns:font="http://schemas.android.com/apk/lib/com.thoughtworks.retailshop.util"
             android:id="@+id/pro_txt"
             style="@style/TextAppearance.AppCompat.Display1"

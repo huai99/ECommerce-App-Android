@@ -2,15 +2,15 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
 
 android {
+    signingConfigs {
+    }
     compileSdkVersion 25
     buildToolsVersion '25.0.0'
-
     defaultConfig {
-        applicationId "com.thoughtworks.retailshop"
+        applicationId "com.thoughtworks.retailapp"
         minSdkVersion 14
         targetSdkVersion 23
     }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -21,12 +21,8 @@ android {
 
 dependencies {
     //Material design
-
     compile files('libs/com.google.guava_1.6.0.jar')
-
     //Loading animations
-
-
     compile 'com.android.support:design:25.3.1'
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support:recyclerview-v7:25.3.1'
